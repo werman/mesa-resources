@@ -19,8 +19,10 @@
       href="git://anongit.freedesktop.org/git/xorg/lib"/>
   <repository type="git" name="xorg-doc" default="yes"
       href="git://anongit.freedesktop.org/git/xorg/doc"/>
- <repository type="git" name="xcb" default="yes"
+  <repository type="git" name="xcb" default="yes"
       href="git://anongit.freedesktop.org/git/xcb"/>
+  <repository type="git" name="glvnd" default="yes"
+              href="git@gitlab.freedesktop.org:glvnd"/>
   <repository type="git" name="gnome" default="yes"
       href="https://gitlab.gnome.org/GNOME"/>
   <repository type="git" name="github-apitrace"
@@ -31,16 +33,29 @@
               href="https://github.com/Igalia"/>
   <repository type="git" name="github-khronos"
               href="https://github.com/KhronosGroup"/>
+  <repository type="git" name="hyperrealm"
+              href="https://github.com/hyperrealm"/>
   <repository type="git" name="gitlab-apinheiro" default="yes"
       href="git@gitlab.freedesktop.org:apinheiro" />
   <repository type="tarball" name="xorg-tar"
     href="http://xorg.freedesktop.org/"/>
   <repository type="tarball" name="github-tar"
       href="https://github.com/"/>
+  <repository type="tarball" name="gnu"
+    href="http://mirrors.kernel.org/gnu/"/>
+
+<!--  <repository type="system" name="system"/>
+
+  <systemmodule id="vulkan">
+    <branch repo="system"/>
+    <systemdependencies>
+      <dep type="c_include" name="vulkan/vulkan.h"/>
+    </systemdependencies>
+  </systemmodule>-->
 
   <distutils id="meson" python3="1">
     <branch repo="github-tar"
-            version="0.52.0"
+            version="0.58.0"
             module="mesonbuild/meson/releases/download/${version}/meson-${version}.tar.gz"
             checkoutdir="meson-${version}">
     </branch>
@@ -48,6 +63,13 @@
       <dep package="ninja"/>
     </dependencies>
   </distutils>
+
+  <autotools id="libffi" autogen-sh="configure">
+    <branch
+             version="3.3"
+             repo="github-tar"
+             module="libffi/libffi/releases/download/v${version}/libffi-${version}.tar.gz" />
+  </autotools>
 
   <autotools id="pixman">
     <branch repo="freedesktop"/>
@@ -62,57 +84,57 @@
     </dependencies>
   </autotools>
 
-  <meson id="drm" mesonargs="-Dnouveau=true -Detnaviv=true -Dfreedreno=true -Dvc4=true">
+  <meson id="drm" mesonargs="-Dnouveau=true -Detnaviv=true -Dfreedreno=true -Dvc4=true" force-non-srcdir-builds="true">
     <branch repo="mesa-gitlab"/>
   </meson>
 
- <autotools id="proto">
+ <autotools id="proto" force-non-srcdir-builds="true">
     <branch repo="xcb"/>
  </autotools>
 
- <autotools id="xorgproto">
+ <autotools id="xorgproto" force-non-srcdir-builds="true">
    <branch repo="xorgproto"/>
  </autotools>
 
-  <autotools id="libXau">
+  <autotools id="libXau" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
     <dependencies>
       <dep package="xorgproto"/>
     </dependencies>
   </autotools>
 
-  <autotools id="libXext">
+  <autotools id="libXext" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
   </autotools>
 
-  <autotools id="libXdamage">
+  <autotools id="libXdamage" force-non-srcdir-builds="true">
     <dependencies>
       <dep package="libXfixes"/>
     </dependencies>
     <branch repo="xorg-lib"/>
   </autotools>
 
-  <autotools id="libXfixes">
+  <autotools id="libXfixes" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
   </autotools>
 
-  <autotools id="libXxf86vm">
+  <autotools id="libXxf86vm" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
   </autotools>
 
-  <autotools id="libXrender">
+  <autotools id="libXrender" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
   </autotools>
 
-  <autotools id="libXrandr">
+  <autotools id="libXrandr" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
     <dependencies>
       <dep package="libXrender"/>
     </dependencies>
   </autotools>
 
-  <autotools id="libxcb">
-    <branch repo="xcb"/>
+  <autotools id="libxcb" force-non-srcdir-builds="true">
+    <branch repo="xcb" revision="libxcb-1.14"/>
     <dependencies>
       <dep package="proto"/>
       <dep package="macros"/>
@@ -120,19 +142,66 @@
     </dependencies>
   </autotools>
 
-  <autotools id="libxshmfence">
+  <autotools id="libxshmfence" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
     <dependencies>
       <dep package="xorgproto"/>
     </dependencies>
   </autotools>
 
-  <autotools id="wayland-protocols">
+  <autotools id="wayland-protocols" force-non-srcdir-builds="true">
     <branch repo="wayland"/>
   </autotools>
 
-  <meson id="mesa" mesonargs="-Dplatforms=x11,drm -Dgallium-drivers=">
-    <branch repo="mesa-gitlab" branch="9.1"/>
+  <autotools id="ncurses" autogen-sh="configure"
+    autogenargs="--with-shared --disable-stripping"
+    force-non-srcdir-builds="true">
+    <branch repo="gnu"
+      version="6.2"
+      module="ncurses/ncurses-${version}.tar.gz"
+      checkoutdir="meson-${version}"/>
+  </autotools>
+
+  <meson id="libglvnd" mesonargs="-Dglx=enabled">
+    <branch repo="glvnd"
+            revision="v1.3.3"/>
+    <dependencies>
+      <dep package="meson"/>
+      <dep package="libX11"/>
+      <dep package="libXext"/>
+      <dep package="xproto"/>
+    </dependencies>
+  </meson>
+
+  <cmake id="vulkan-headers"
+         force-non-srcdir-builds="true">
+     <branch repo="github-khronos"
+             module="Vulkan-Headers"
+             revision="main"/>
+    <dependencies>
+    </dependencies>
+  </cmake>
+
+  <cmake id="vulkan-loader"
+         use-ninja="true"
+         force-non-srcdir-builds="true"
+         cmakeargs="-DBUILD_WSI_WAYLAND_SUPPORT=0">
+     <branch repo="github-khronos"
+             module="Vulkan-Loader"/>
+    <dependencies>
+        <dep package="vulkan-headers"/>
+    </dependencies>
+  </cmake>
+
+  <autotools id="libconfig" autogen-sh="configure" force-non-srcdir-builds="true">
+    <branch
+             version="1.7.3"
+             repo="github-tar"
+             module="hyperrealm/libconfig/releases/download/v${version}/libconfig-${version}.tar.gz" />
+  </autotools>
+
+  <meson id="mesa" mesonargs="-Dplatforms=x11 -Dgallium-drivers=">
+    <branch repo="mesa-gitlab" branch="main"/>
     <dependencies>
       <dep package="meson"/>
       <dep package="drm"/>
@@ -144,6 +213,10 @@
       <dep package="libXdamage"/>
       <dep package="libXxf86vm"/>
       <dep package="libXrandr"/>
+      <dep package="vulkan-loader"/>
+      <dep package="libglvnd"/>
+      <dep package="ncurses"/>
+      <dep package="libconfig"/>
     </dependencies>
   </meson>
 
@@ -178,9 +251,15 @@
   </cmake>
 
   <cmake id="vk-gl-cts"
-         skip-install="true">
+         skip-install="true"
+         use-ninja="true"
+         force-non-srcdir-builds="true">
      <branch repo="github-khronos"
              module="VK-GL-CTS"/>
+    <dependencies>
+      <dep package="libX11"/>
+      <dep package="libxcb"/>
+    </dependencies>
   </cmake>
 
   <meson id="parallel-deqp-runner">
@@ -213,8 +292,11 @@
     </dependencies>
   </autotools>
 
-  <autotools id="wayland" autogenargs="--with-egl-platforms=wayland,drm,x11">
+  <autotools id="wayland" autogenargs="--with-egl-platforms=wayland,drm,x11" force-non-srcdir-builds="true">
     <branch repo="wayland"/>
+    <dependencies>
+      <dep package="libffi"/>
+    </dependencies>
   </autotools>
 
   <autotools id="weston" autogenargs="--disable-setuid-install">
@@ -226,18 +308,18 @@
     </dependencies>
   </autotools>
 
-  <autotools id="macros">
+  <autotools id="macros" force-non-srcdir-builds="true">
     <branch repo="xorg-util"/>
   </autotools>
 
-  <autotools id="xorgproto">
+  <autotools id="xorgproto" force-non-srcdir-builds="true">
     <branch repo="xorgproto"/>
     <dependencies>
       <dep package="macros"/>
     </dependencies>
   </autotools>
 
-  <autotools id="libX11">
+  <autotools id="libX11" force-non-srcdir-builds="true">
     <branch repo="xorg-lib"/>
     <dependencies>
       <dep package="libxcb"/>
@@ -250,7 +332,7 @@
     <branch repo="xorg-lib"/>
   </autotools>
 
-  <autotools id="libxkbcommon" autogenargs="--with-xkb-config-root=/usr/share/X11/xkb">
+  <autotools id="libxkbcommon" autogenargs="--with-xkb-config-root=/usr/share/X11/xkb" force-non-srcdir-builds="true">
     <branch repo="github" module="xkbcommon/libxkbcommon.git"/>
     <dependencies>
       <dep package="macros"/>
