@@ -28,7 +28,7 @@
   <repository type="git" name="github-apitrace"
       href="git://github.com/apitrace"/>
   <repository type="git" name="github"
-              href="git://github.com/"/>
+              href="https://github.com/"/>
   <repository type="git" name="github-igalia"
               href="https://github.com/Igalia"/>
   <repository type="git" name="github-khronos"
@@ -85,7 +85,7 @@
   </autotools>
 
   <meson id="drm" mesonargs="-Dnouveau=true -Detnaviv=true -Dfreedreno=true -Dvc4=true" force-non-srcdir-builds="true">
-    <branch repo="mesa-gitlab"/>
+    <branch repo="mesa-gitlab" revision="main"/>
   </meson>
 
  <autotools id="proto" force-non-srcdir-builds="true">
@@ -154,12 +154,11 @@
   </autotools>
 
   <autotools id="ncurses" autogen-sh="configure"
-    autogenargs="--with-shared --disable-stripping"
+    autogenargs="--with-shared --disable-stripping --without-progs --enable-pc-files"
     force-non-srcdir-builds="true">
     <branch repo="gnu"
-      version="6.2"
-      module="ncurses/ncurses-${version}.tar.gz"
-      checkoutdir="meson-${version}"/>
+      version="6.3"
+      module="ncurses/ncurses-${version}.tar.gz"/>
   </autotools>
 
   <meson id="libglvnd" mesonargs="-Dglx=enabled">
@@ -200,6 +199,21 @@
              module="hyperrealm/libconfig/releases/download/v${version}/libconfig-${version}.tar.gz" />
   </autotools>
 
+  <cmake id="libxz" use-ninja="true" force-non-srcdir-builds="true" cmakeargs="-DCMAKE_POSITION_INDEPENDENT_CODE=1">
+    <branch version="master" repo="github" module="xz-mirror/xz"/>
+  </cmake>
+  
+  <cmake id="libxml2" use-ninja="true" force-non-srcdir-builds="true" cmakeargs="-DLIBXML2_WITH_PYTHON=0">
+    <branch repo="gnome" module="libxml2"/>
+    <dependencies>
+        <dep package="libxz"/>
+    </dependencies>
+  </cmake>
+  
+  <cmake id="docopt" use-ninja="true" force-non-srcdir-builds="true" cmakeargs="">
+    <branch version="master" repo="github" module="docopt/docopt.cpp"/>
+  </cmake>
+  
   <meson id="mesa" mesonargs="-Dplatforms=x11 -Dgallium-drivers=">
     <branch repo="mesa-gitlab" branch="main"/>
     <dependencies>
@@ -217,6 +231,8 @@
       <dep package="libglvnd"/>
       <dep package="ncurses"/>
       <dep package="libconfig"/>
+      <dep package="docopt"/>
+<!--       <dep package="libxml2"/> -->
     </dependencies>
   </meson>
 
@@ -244,7 +260,7 @@
   </cmake>
 
   <cmake id="deqp"
-         cmakearks="-DPNG_INCLUDE_PATH=/usr/include/libpng"
+         cmakeargs="-DPNG_INCLUDE_PATH=/usr/include/libpng"
          skip-install="true">
      <branch repo="android"
              module="deqp"/>
@@ -253,6 +269,7 @@
   <cmake id="vk-gl-cts"
          skip-install="true"
          use-ninja="true"
+         cmakeargs="-DGLCTS_GTF_TARGET=gl"
          force-non-srcdir-builds="true">
      <branch repo="github-khronos"
              module="VK-GL-CTS"/>
