@@ -55,7 +55,7 @@
 
   <distutils id="meson" python3="1">
     <branch repo="github-tar"
-            version="0.59.2"
+            version="0.64.0"
             module="mesonbuild/meson/releases/download/${version}/meson-${version}.tar.gz"
             checkoutdir="meson-${version}">
     </branch>
@@ -84,7 +84,7 @@
     </dependencies>
   </autotools>
 
-  <meson id="drm" mesonargs="-Dnouveau=true -Detnaviv=true -Dfreedreno=true -Dvc4=true" force-non-srcdir-builds="true">
+  <meson id="drm" mesonargs="-Dnouveau=disabled -Detnaviv=disabled -Dfreedreno=enabled -Dvc4=disabled" force-non-srcdir-builds="true">
     <branch repo="mesa-gitlab" revision="main"/>
   </meson>
 
@@ -214,6 +214,31 @@
     <branch version="master" repo="github" module="docopt/docopt.cpp"/>
   </cmake>
   
+  <autotools id="libiconv" autogen-sh="configure"
+    autogenargs=""
+    force-non-srcdir-builds="true">
+    <branch repo="gnu"
+      version="1.17"
+      module="libiconv/libiconv-${version}.tar.gz"/>
+  </autotools>
+  
+  <cmake id="zlib" use-ninja="true" force-non-srcdir-builds="true" cmakeargs="">
+    <branch version="v1.2.13" repo="github" module="madler/zlib"/>
+  </cmake>
+  
+  <cmake id="libzstd" use-ninja="true" force-non-srcdir-builds="true" cmakedir="build/cmake/" cmakeargs="-DZSTD_DISABLE_ASM=1">
+    <!--<branch version="zstd-0.4.2" repo="github" module="facebook/zstd"/>-->
+    <branch version="huf_dec" repo="github" module="JunHe77/zstd"/>
+  </cmake>
+  
+  <cmake id="libarchive" use-ninja="true" force-non-srcdir-builds="true" cmakeargs="">
+    <branch version="v3.6.1" repo="github" module="libarchive/libarchive"/>
+    <dependencies>
+      <dep package="libiconv"/>
+      <dep package="zlib"/>
+    </dependencies>
+  </cmake>
+  
   <meson id="mesa" mesonargs="-Dplatforms=x11 -Dgallium-drivers=">
     <branch repo="mesa-gitlab" branch="main"/>
     <dependencies>
@@ -232,6 +257,7 @@
       <dep package="ncurses"/>
       <dep package="libconfig"/>
       <dep package="docopt"/>
+      <dep package="libarchive"/>
 <!--       <dep package="libxml2"/> -->
     </dependencies>
   </meson>
