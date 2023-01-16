@@ -149,12 +149,15 @@
     </dependencies>
   </autotools>
 
-  <autotools id="wayland-protocols" force-non-srcdir-builds="true">
+  <meson id="wayland-protocols" mesonargs="-Dtests=false">
     <branch repo="wayland"/>
-  </autotools>
+    <dependencies>
+      <dep package="meson"/>
+    </dependencies>
+  </meson>
 
   <autotools id="ncurses" autogen-sh="configure"
-    autogenargs="--with-shared --disable-stripping --without-progs --enable-pc-files"
+    autogenargs="--with-shared --disable-stripping --without-progs --without-tests --enable-pc-files"
     force-non-srcdir-builds="true">
     <branch repo="gnu"
       version="6.3"
@@ -231,7 +234,7 @@
     <branch version="huf_dec" repo="github" module="JunHe77/zstd"/>
   </cmake>
   
-  <cmake id="libarchive" use-ninja="true" force-non-srcdir-builds="true" cmakeargs="">
+  <cmake id="libarchive" use-ninja="true" force-non-srcdir-builds="true" cmakeargs="-DENABLE_WERROR=OFF">
     <branch version="v3.6.1" repo="github" module="libarchive/libarchive"/>
     <dependencies>
       <dep package="libiconv"/>
