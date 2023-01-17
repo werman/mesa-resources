@@ -265,12 +265,22 @@
     </dependencies>
   </meson>
 
-  <autotools id="demos" autogenargs="--enable-egl --enable-gles1 --enable-gles2">
+  <meson id="glu" mesonargs="">
     <branch repo="mesa-gitlab"/>
     <dependencies>
-      <dep package="mesa"/>
+        <dep package="meson"/>
+        <dep package="mesa"/>
     </dependencies>
-  </autotools>
+  </meson>
+
+  <meson id="demos" mesonargs="-Degl=enabled -Dgles1=enabled -Dgles2=enabled">
+    <branch repo="mesa-gitlab"/>
+    <dependencies>
+      <dep package="meson"/>
+      <dep package="mesa"/>
+      <dep package="glu"/>
+    </dependencies>
+  </meson>
 
   <cmake id="waffle" cmakeargs="-Dwaffle_has_glx=1">
     <branch repo="mesa-gitlab"/>
